@@ -12,7 +12,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { SceneManager } from '../../core/three/scene-manager';
-import { PlaceholderScene } from '../../core/three/placeholder-scene';
+import { OverworldScene } from './three/overworld-scene';
 
 @Component({
   selector: 'az-overworld',
@@ -40,7 +40,7 @@ export class OverworldPage implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.sceneManager.mount(this.canvasRef().nativeElement);
-    this.sceneManager.setScene(new PlaceholderScene());
+    this.sceneManager.setScene(new OverworldScene());
   }
 
   ngOnDestroy(): void {
