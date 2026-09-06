@@ -6,7 +6,7 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./features/lobby/lobby.page').then((m) => m.LobbyPage),
+      import('./features/overworld/overworld.page').then((m) => m.OverworldPage),
   },
   {
     path: 'arena/:code',
