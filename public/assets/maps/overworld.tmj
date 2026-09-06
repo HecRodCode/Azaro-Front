@@ -128,7 +128,13 @@
       "spacing": 0,
       "tilecount": 64,
       "tileheight": 16,
-      "tilewidth": 16
+      "tilewidth": 16,
+      "tiles": [
+        { "id": 3, "properties": [{ "name": "solid", "type": "bool", "value": true }] },
+        { "id": 4, "properties": [{ "name": "solid", "type": "bool", "value": true }] },
+        { "id": 5, "properties": [{ "name": "solid", "type": "bool", "value": true }] },
+        { "id": 6, "properties": [{ "name": "solid", "type": "bool", "value": true }] }
+      ]
     }
   ],
   "tilewidth": 16,

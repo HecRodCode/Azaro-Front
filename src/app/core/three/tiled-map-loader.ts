@@ -3,6 +3,12 @@
 // No toca Three.js. Devuelve la ruta absoluta del tileset resuelta contra
 // la URL del .tmj para que el atlas se cargue desde el sitio correcto.
 
+export interface TiledTileMeta {
+  /** Local id dentro del tileset (0-indexed; gid absoluto = firstgid + id). */
+  id: number;
+  properties?: TiledObjectProperty[];
+}
+
 export interface TiledTilesetRef {
   firstgid: number;
   image: string; // ruta absoluta ya resuelta
@@ -15,6 +21,7 @@ export interface TiledTilesetRef {
   margin: number;
   spacing: number;
   name: string;
+  tiles?: TiledTileMeta[];
 }
 
 export interface TiledTileLayer {
@@ -96,6 +103,7 @@ interface RawTilesetRef {
   margin: number;
   spacing: number;
   name: string;
+  tiles?: TiledTileMeta[];
 }
 
 type RawTiledLayer = TiledTileLayer | TiledObjectGroup;
