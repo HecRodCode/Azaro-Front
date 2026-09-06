@@ -1,3 +1,72 @@
-/* You can add global styles to this file, and also import other style files */
+/* Estilos globales de Azaro. Look pixel-art retro tipo Pokémon GBA:
+   fuente Press Start 2P, paleta CRT, sin bordes redondeados, sin
+   antialias, escalado pixelado en todo el árbol. */
 
 @import 'tailwindcss';
+
+@theme {
+  /* Paleta base — evoca CRT verde/ámbar sobre negro profundo. */
+  --color-crt-bg: #0b1010;
+  --color-crt-bg-alt: #12201a;
+  --color-crt-ink: #d7f7c9;
+  --color-crt-ink-dim: #6ba368;
+  --color-crt-accent: #7bd854;
+  --color-crt-accent-hot: #ffcf3f;
+  --color-crt-danger: #e05a3a;
+  --color-crt-shadow: #04140a;
+  --color-crt-border: #2a3a2a;
+
+  --font-pixel: 'Press Start 2P', ui-monospace, monospace;
+}
+
+:root {
+  color-scheme: dark;
+  --tile: 4px; /* unidad base del grid pixel */
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--color-crt-bg);
+  color: var(--color-crt-ink);
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  /* Sin suavizado: los píxeles deben verse duros. */
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+}
+
+/* Todo pixelado — geometrías Three.js, sprites, íconos. */
+*,
+*::before,
+*::after {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  border-radius: 0 !important;
+}
+
+/* Fondo con leve scanlines para reforzar la vibra CRT. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.15) 0,
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  z-index: 9999;
+  mix-blend-mode: multiply;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
