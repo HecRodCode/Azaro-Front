@@ -1,12 +1,14 @@
 // Escena principal del overworld: carga overworld.tmj + atlas, monta el
 // TileMap, coloca al PlayerDrone en su spawn y hace que la cámara lo siga
-// con clamping a los bordes del mapa. Recibe servicios por constructor
-// porque las escenas viven fuera del DI de Angular.
+// con clamping a los bordes del mapa. También detecta InteractionZones,
+// publica la zona activa al WorldStore y proyecta el ancla del prompt
+// (top-center de la zona) a coords NDC para que overlays DOM lo sitúen.
 
 import * as THREE from 'three';
 import { KeyboardInputService } from '../../../core/input/keyboard-input.service';
 import { WorldStore } from '../../../core/state/world-store';
 import { CollisionGrid } from '../../../core/three/collision-grid';
+import { InteractionZone } from '../../../core/three/interaction-zone';
 import { TileMap } from '../../../core/three/tile-map';
 import { TilesetAtlas } from '../../../core/three/tileset-atlas';
 import {
@@ -19,6 +21,8 @@ import type { ThreeScene, ThreeSceneContext } from '../../../core/three/three-sc
 import { PlayerDrone } from './player-drone';
 
 const MAP_URL = '/assets/maps/overworld.tmj';
+/** Elevación del ancla del prompt sobre el borde superior de la zona (tiles). */
+const PROMPT_LIFT = 0.6;
 
 export class OverworldScene implements ThreeScene {
   readonly scene = new THREE.Scene();
@@ -28,6 +32,8 @@ export class OverworldScene implements ThreeScene {
   private tiledMap: TiledMap | null = null;
   private collision: CollisionGrid | null = null;
   private player: PlayerDrone | null = null;
+  private zones: InteractionZone[] = [];
+  private readonly ndcVec = new THREE.Vector3();
   private ready = false;
 
   constructor(
@@ -57,6 +63,7 @@ export class OverworldScene implements ThreeScene {
       this.rig.setTarget(p.x, p.y);
     }
     this.rig.update();
+    this.syncActiveZone();
   }
 
   resize(virtualWidth: number, virtualHeight: number): void {
@@ -73,8 +80,12 @@ export class OverworldScene implements ThreeScene {
     this.atlas = null;
     this.tiledMap = null;
     this.collision = null;
+    this.zones = [];
     this.rig = null;
     this.ready = false;
+    this.world.setActiveZone(null);
+    this.world.setPromptAnchorNdc(null);
+    this.world.setDialogOpen(false);
   }
 
   private async loadAssets(): Promise<void> {
@@ -86,6 +97,7 @@ export class OverworldScene implements ThreeScene {
     this.scene.add(this.tileMap.object);
 
     this.collision = new CollisionGrid(this.tiledMap);
+    this.zones = this.resolveZones(this.tiledMap);
 
     const spawn = this.resolveSpawn(this.tiledMap);
     this.player = new PlayerDrone(
@@ -107,6 +119,35 @@ export class OverworldScene implements ThreeScene {
     this.rig?.update();
 
     this.ready = true;
+  }
+
+  private syncActiveZone(): void {
+    if (!this.player || !this.rig) return;
+    const p = this.player.position;
+    const active = this.zones.find((z) => z.containsPoint(p.x, p.y)) ?? null;
+
+    this.world.setActiveZone(active?.id ?? null);
+
+    if (!active) {
+      if (this.world.promptAnchorNdc() !== null) this.world.setPromptAnchorNdc(null);
+      return;
+    }
+
+    // Proyectamos el ancla a NDC. La cámara es ortográfica en z=5 mirando a
+    // z=0, así que z=0 en world proyecta a z≈0 en NDC; solo importan x/y.
+    this.ndcVec.set(active.anchor.x, active.anchor.y + PROMPT_LIFT, 0);
+    this.ndcVec.project(this.rig.camera);
+    this.world.setPromptAnchorNdc({ x: this.ndcVec.x, y: this.ndcVec.y });
+  }
+
+  private resolveZones(map: TiledMap): InteractionZone[] {
+    const layer = map.layers.find(
+      (l) => l.type === 'objectgroup' && l.name === 'zones',
+    );
+    if (!layer || layer.type !== 'objectgroup') return [];
+    return layer.objects.map((o) =>
+      InteractionZone.fromTiled(o, map.height, map.tileheight),
+    );
   }
 
   /** Extrae el objeto `player` de la capa `spawns` y convierte a coords de mundo. */
