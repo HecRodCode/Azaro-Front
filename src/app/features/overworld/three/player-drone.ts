@@ -51,6 +51,13 @@ export class PlayerDrone {
   }
 
   update(dt: number): void {
+    // Mientras haya un diálogo abierto, el input se congela — el dron queda
+    // quieto y no publica movimiento aunque el jugador tenga teclas apretadas.
+    if (this.world.dialogOpen()) {
+      this.world.setMoving(false);
+      return;
+    }
+
     const dx = (this.keyboard.right() ? 1 : 0) - (this.keyboard.left() ? 1 : 0);
     const dy = (this.keyboard.up() ? 1 : 0) - (this.keyboard.down() ? 1 : 0);
 

@@ -1,4 +1,4 @@
-// Título pixel-art. `level` controla la jerarquía semántica (h1..h3) y el
+  // Título pixel-art. `level` controla la jerarquía semántica (h1..h3) y el
 // tamaño. `tone` cambia el color sin duplicar el componente.
 
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
