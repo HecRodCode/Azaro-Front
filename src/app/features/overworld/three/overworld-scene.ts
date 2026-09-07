@@ -1,5 +1,5 @@
 // Escena principal del overworld: carga overworld.tmj + atlas, monta el
-// TileMap, coloca al PlayerDrone en su spawn y hace que la cámara lo siga
+// TileMap, coloca al OverworldPlayer en su spawn y hace que la cámara lo siga
 // con clamping a los bordes del mapa. También detecta InteractionZones,
 // publica la zona activa al WorldStore y proyecta el ancla del prompt
 // (top-center de la zona) a coords NDC para que overlays DOM lo sitúen.
@@ -18,7 +18,7 @@ import {
 } from '../../../core/three/tiled-map-loader';
 import { TopDownCameraRig } from '../../../core/three/top-down-camera-rig';
 import type { ThreeScene, ThreeSceneContext } from '../../../core/three/three-scene';
-import { PlayerDrone } from './player-drone';
+import { OverworldPlayer } from './overworld-player';
 
 const MAP_URL = '/assets/maps/overworld.tmj';
 /** Elevación del ancla del prompt sobre el borde superior de la zona (tiles). */
@@ -31,7 +31,7 @@ export class OverworldScene implements ThreeScene {
   private atlas: TilesetAtlas | null = null;
   private tiledMap: TiledMap | null = null;
   private collision: CollisionGrid | null = null;
-  private player: PlayerDrone | null = null;
+  private player: OverworldPlayer | null = null;
   private zones: InteractionZone[] = [];
   private readonly ndcVec = new THREE.Vector3();
   private ready = false;
@@ -100,7 +100,7 @@ export class OverworldScene implements ThreeScene {
     this.zones = this.resolveZones(this.tiledMap);
 
     const spawn = this.resolveSpawn(this.tiledMap);
-    this.player = new PlayerDrone(
+    this.player = new OverworldPlayer(
       spawn.x,
       spawn.y,
       this.collision,
